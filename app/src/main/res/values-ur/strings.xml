@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">نورِ اسلام</string>
+    <string name="app_tagline">سیکھیں۔ غور کریں۔ اسلام کو جیئیں</string>
+    <string name="login">لاگ ان</string>
+    <string name="register">رجسٹر</string>
+    <string name="email">ای میل</string>
+    <string name="password">پاس ورڈ</string>
+    <string name="home">ہوم</string>
+    <string name="quran">قرآن</string>
+    <string name="learn">سیکھیں</string>
+    <string name="calendar">کیلنڈر</string>
+    <string name="profile">پروفائل</string>
+    <string name="greeting_assalam">السلام علیکم</string>
+</resources>
+

@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">نور الإسلام</string>
+    <string name="app_tagline">تعلم. تفكر. عش الإسلام</string>
+    <string name="login">تسجيل الدخول</string>
+    <string name="register">إنشاء حساب</string>
+    <string name="email">البريد الإلكتروني</string>
+    <string name="password">كلمة المرور</string>
+    <string name="home">الرئيسية</string>
+    <string name="quran">القرآن</string>
+    <string name="learn">تعلم</string>
+    <string name="calendar">التقويم</string>
+    <string name="profile">الملف الشخصي</string>
+    <string name="greeting_assalam">السلام عليكم</string>
+</resources>
+

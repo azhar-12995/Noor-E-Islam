@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="emerald_900">#FF062B1F</color>
+    <color name="emerald_700">#FF0F4D38</color>
+    <color name="emerald_500">#FF1B7A56</color>
+    <color name="emerald_300">#FF4FB28A</color>
+    <color name="gold_500">#FFD4AF37</color>
+    <color name="gold_300">#FFE9C76B</color>
+    <color name="ivory">#FFFAF6EC</color>
+    <color name="midnight">#FF0B1410</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

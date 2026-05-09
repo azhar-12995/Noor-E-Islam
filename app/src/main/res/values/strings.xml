@@ -1,0 +1,84 @@
+<resources>
+    <string name="app_name">Noor-e-Islam</string>
+    <string name="app_tagline">Learn. Reflect. Live Islam</string>
+    <string name="default_notification_channel_id">noor_default_channel</string>
+    <string name="default_notification_channel_name">Daily Reminders</string>
+
+    <!-- Auth -->
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="dont_have_account">Don\'t have an account? Sign up</string>
+    <string name="already_have_account">Already have an account? Login</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="send_reset_link">Send Reset Link</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_learn_title">Learn</string>
+    <string name="onboarding_learn_desc">Quran, Hadith and Islamic knowledge at your fingertips.</string>
+    <string name="onboarding_reflect_title">Reflect</string>
+    <string name="onboarding_reflect_desc">Islamic calendar, daily reminders and history of Islam.</string>
+    <string name="onboarding_live_title">Live</string>
+    <string name="onboarding_live_desc">Build good habits, daily duas and noble character.</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="get_started">Get Started</string>
+
+    <!-- Home -->
+    <string name="greeting_assalam">Assalamu Alaikum</string>
+    <string name="todays_hadith">Today\'s Hadith</string>
+    <string name="todays_importance">Today\'s Importance</string>
+    <string name="incident_in_history">Incident in Islamic History</string>
+    <string name="continue_reading">Continue Reading</string>
+    <string name="quick_access">Quick Access</string>
+
+    <!-- Tabs / sections -->
+    <string name="home">Home</string>
+    <string name="quran">Quran</string>
+    <string name="hadith">Hadith</string>
+    <string name="learn">Learn</string>
+    <string name="learn_islam">Learn Islam</string>
+    <string name="calendar">Calendar</string>
+    <string name="incidents">Incidents</string>
+    <string name="dua">Dua</string>
+    <string name="dua_collection">Dua Collection</string>
+    <string name="stories">Stories</string>
+    <string name="habits">Good Habits</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="notes">Notes</string>
+    <string name="downloads">Downloads</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="share_app">Share App</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="about_us">About Us</string>
+    <string name="upgrade_plan">Upgrade Plan</string>
+    <string name="logout">Logout</string>
+
+    <!-- Generic -->
+    <string name="search">Search</string>
+    <string name="retry">Retry</string>
+    <string name="loading">Loading…</string>
+    <string name="empty">Nothing here yet</string>
+    <string name="error_generic">Something went wrong</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="share">Share</string>
+    <string name="copy">Copy</string>
+    <string name="play">Play</string>
+
+    <!-- Quran -->
+    <string name="all_surahs">All</string>
+    <string name="makki">Makki</string>
+    <string name="madani">Madani</string>
+    <string name="ayah">Ayah</string>
+
+    <!-- Drawer footer -->
+    <string name="daily_goal">Daily Goal</string>
+    <string name="quote_of_the_day">"And He found you lost and guided [you]." — Surah Ad-Duha 93:7</string>
+</resources>

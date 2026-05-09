@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "202260724829",
+    "project_id": "noor-e-islam-b049e",
+    "storage_bucket": "noor-e-islam-b049e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202260724829:android:370b71851e622fe8c2e1b4",
+        "android_client_info": {
+          "package_name": "com.azhar.noor_e_islam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhr8jEsHIyP3BpPSg5WTF2X35p2KN5Gtc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
