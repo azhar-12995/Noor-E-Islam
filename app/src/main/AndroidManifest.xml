@@ -57,6 +57,15 @@
             </intent-filter>
         </service>
 
+        <!-- Local alarm broadcast for scheduled Islamic events -->
+        <receiver
+            android:name=".core.notifications.EventAlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.azhar.noor_e_islam.EVENT_ALARM" />
+            </intent-filter>
+        </receiver>
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />

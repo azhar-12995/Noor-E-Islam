@@ -5,7 +5,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,6 +20,8 @@ import javax.inject.Singleton
  * State:
  *  - [currentUrl] — the URL currently loaded (or null)
  *  - [isPlaying]  — true while playback is active
+ *  - [completions] — emits a [Unit] every time a track finishes naturally
+ *                    (used by "Play All" to advance to the next ayah).
  */
 @Singleton
 class AyahAudioPlayer @Inject constructor(
@@ -30,6 +35,12 @@ class AyahAudioPlayer @Inject constructor(
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
 
+    private val _completions = MutableSharedFlow<Unit>(
+        extraBufferCapacity = 4,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    val completions: SharedFlow<Unit> = _completions
+
     private fun player(): ExoPlayer = player ?: ExoPlayer.Builder(context).build().also {
         it.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
@@ -40,6 +51,7 @@ class AyahAudioPlayer @Inject constructor(
                 if (state == Player.STATE_ENDED) {
                     _isPlaying.value = false
                     _currentUrl.value = null
+                    _completions.tryEmit(Unit)
                 }
             }
         })
@@ -60,6 +72,20 @@ class AyahAudioPlayer @Inject constructor(
         }
         p.playWhenReady = true
         p.play()
+    }
+
+    /** Force-play [url] from the start (used by Play-All sequencing). */
+    fun play(url: String) {
+        val p = player()
+        p.setMediaItem(MediaItem.fromUri(url))
+        p.prepare()
+        _currentUrl.value = url
+        p.playWhenReady = true
+        p.play()
+    }
+
+    fun pause() {
+        player?.pause()
     }
 
     fun stop() {

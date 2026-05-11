@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -20,19 +21,24 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.azhar.noor_e_islam.R
 import com.azhar.noor_e_islam.core.navigation.Route
+import com.azhar.noor_e_islam.ui.theme.Emerald900
+import com.azhar.noor_e_islam.ui.theme.Gold500
 
 private data class TabItem(val route: Route, val labelRes: Int, val icon: ImageVector)
 
@@ -53,6 +59,7 @@ private val routesWithOwnTopBar = setOf(
     Route.Calendar.route,    // hero with hijri date
     Route.Stories.route,     // back + tabs
     Route.Incidents.route,   // hero image
+    Route.Bookmarks.route,   // back + title
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,21 +104,41 @@ fun NoorScaffold(
                 enter = slideInVertically { it } + fadeIn(),
                 exit = slideOutVertically { it } + fadeOut()
             ) {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                    tabs.forEach { tab ->
-                        val selected = backStackEntry?.destination?.hierarchy?.any { it.route == tab.route.route } == true
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(tab.route.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(tab.icon, contentDescription = null) },
-                            label = { Text(androidx.compose.ui.res.stringResource(tab.labelRes)) }
-                        )
+                Surface(
+                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 6.dp,
+                    shadowElevation = 12.dp,
+                ) {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 0.dp,
+                    ) {
+                        tabs.forEach { tab ->
+                            val selected = backStackEntry?.destination?.hierarchy?.any { it.route == tab.route.route } == true
+                            NavigationBarItem(
+                                selected = selected,
+                                onClick = {
+                                    // Skip if the user taps the same tab they're already on,
+                                    // so we never re-create the screen / re-trigger its VM init.
+                                    if (selected) return@NavigationBarItem
+                                    navController.navigate(tab.route.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(tab.icon, contentDescription = null) },
+                                label = { Text(androidx.compose.ui.res.stringResource(tab.labelRes)) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = Emerald900,
+                                    selectedTextColor = Emerald900,
+                                    indicatorColor = Gold500.copy(alpha = 0.22f),
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                ),
+                            )
+                        }
                     }
                 }
             }

@@ -15,5 +15,7 @@ class UserPrefsRepositoryImpl @Inject constructor(
     override suspend fun setOnboardingDone(done: Boolean) = store.setOnboardingDone(done)
     override suspend fun setThemeMode(mode: String) = store.setThemeMode(mode)
     override suspend fun setLocale(locale: String) = store.setLocale(locale)
+    override suspend fun setQuranFontScale(scale: Float) = store.setQuranFontScale(scale)
+    override suspend fun setHadithFontScale(scale: Float) = store.setHadithFontScale(scale)
 }
 

@@ -8,15 +8,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.azhar.noor_e_islam.ui.theme.Gold500
 
-/** Premium rounded card with subtle gold accent border + soft elevation. */
+/** Flat rounded card with a subtle gold accent border. No elevation/shadow. */
 @Composable
 fun IslamicCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     showBorder: Boolean = true,
+    cornerRadius: Dp = 20.dp,
     content: @Composable () -> Unit,
 ) {
     val cardColors = CardDefaults.cardColors(
@@ -24,8 +26,16 @@ fun IslamicCard(
         contentColor   = MaterialTheme.colorScheme.onSurface,
     )
     val border = if (showBorder) BorderStroke(0.7.dp, Gold500.copy(alpha = 0.45f)) else null
-    val shape  = RoundedCornerShape(20.dp)
-    val elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    val shape  = RoundedCornerShape(cornerRadius)
+    // Flat — no shadow.
+    val elevation = CardDefaults.cardElevation(
+        defaultElevation = 0.dp,
+        pressedElevation = 0.dp,
+        focusedElevation = 0.dp,
+        hoveredElevation = 0.dp,
+        draggedElevation = 0.dp,
+        disabledElevation = 0.dp,
+    )
 
     if (onClick != null) {
         Card(onClick = onClick, modifier = modifier, colors = cardColors, shape = shape, border = border, elevation = elevation) {

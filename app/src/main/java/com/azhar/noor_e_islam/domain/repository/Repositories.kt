@@ -75,5 +75,7 @@ interface UserPrefsRepository {
     suspend fun setOnboardingDone(done: Boolean)
     suspend fun setThemeMode(mode: String)
     suspend fun setLocale(locale: String)
+    suspend fun setQuranFontScale(scale: Float)
+    suspend fun setHadithFontScale(scale: Float)
 }
 

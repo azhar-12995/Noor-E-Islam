@@ -11,10 +11,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Note
 import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Feedback
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
@@ -24,18 +29,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.azhar.noor_e_islam.core.ui.components.BadgedBell
 import com.azhar.noor_e_islam.core.ui.components.IslamicCard
 import com.azhar.noor_e_islam.presentation.prayertimes.PrayerTimesHomeCard
 import com.azhar.noor_e_islam.presentation.qibla.QiblaHomeCard
 import com.azhar.noor_e_islam.ui.theme.Emerald900
 import com.azhar.noor_e_islam.ui.theme.Gold500
-import com.azhar.noor_e_islam.ui.theme.NoorGradients
 
 private data class QuickItem(val label: String, val icon: ImageVector, val onClick: () -> Unit)
 private data class HighlightItem(val tag: String, val text: String, val ref: String)
@@ -53,52 +57,73 @@ fun HomeScreen(
     onOpenHadith: () -> Unit = {},
     onOpenQibla: () -> Unit = {},
     onOpenPrayerTimes: () -> Unit = {},
+    onOpenIncidents: () -> Unit = {},
+    onOpenHabits: () -> Unit = {},
+    onOpenBookmarks: () -> Unit = {},
+    onOpenNotes: () -> Unit = {},
+    onOpenNotifications: () -> Unit = {},
+    onOpenFeedback: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 88.dp)
-    ) {
-        // Top bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onOpenMenu) {
-                Icon(Icons.Outlined.Menu, contentDescription = "Menu", tint = Emerald900)
-            }
-            Spacer(Modifier.width(4.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "As-salamu Alaikum",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Emerald900,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "May Allah bless your day",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(onClick = { /* notifications */ }) {
-                Icon(Icons.Outlined.Notifications, null, tint = Emerald900)
-            }
-        }
+    // Premium announcement dialog — shown at most once per announcement id.
+    state.latestAnnouncement?.let { ann ->
+        AnnouncementDialog(
+            title = ann.title,
+            message = ann.message,
+            onDismiss = { viewModel.dismissAnnouncement(ann.id) },
+        )
+    }
 
-        // Sync banner
-        if (state.isQuranSyncing) {
-            SyncBanner(text = "Downloading Quran… first-time sync")
-        } else if (state.quranSyncError != null) {
-            SyncBanner(text = "Quran sync failed: ${state.quranSyncError}", isError = true)
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            // Fixed (non-scrolling) top bar with menu, greeting, notifications.
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onOpenMenu) {
+                    Icon(Icons.Outlined.Menu, contentDescription = "Menu", tint = Emerald900)
+                }
+                Spacer(Modifier.width(4.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Assalam o Alaikum",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Emerald900,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "May Allah bless your day",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = onOpenNotifications) {
+                    BadgedBell()
+                }
+            }
         }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 110.dp) // clear the global rounded bottom nav
+        ) {
+            // Sync banner
+            if (state.isQuranSyncing) {
+                SyncBanner(text = "Downloading Quran… first-time sync")
+            } else if (state.quranSyncError != null) {
+                SyncBanner(text = "Quran sync failed: ${state.quranSyncError}", isError = true)
+            }
+
 
         // Qibla compass card (sits directly below the top bar / status bar)
         QiblaHomeCard(
@@ -163,24 +188,41 @@ fun HomeScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        // Quick Access — 5 icons row
+        // ===== Quick Access — features NOT in the bottom nav =====
+        // Bottom nav already covers: Home, Quran, Learn, Calendar, Profile.
+        // Quick Access surfaces: Hadith, Dua, Stories, Incidents, Habits,
+        //                        Bookmarks, Notes, Feedback.
         SectionTitle("Quick Access")
         Spacer(Modifier.height(10.dp))
         val quickItems = listOf(
-            QuickItem("Quran",    Icons.AutoMirrored.Filled.MenuBook, onOpenQuran),
-            QuickItem("Hadith",   Icons.Filled.FormatQuote,           onOpenHadith),
-            QuickItem("Calendar", Icons.Filled.CalendarMonth,         onOpenCalendar),
-            QuickItem("Dua",      Icons.Filled.Favorite,              onOpenDua),
-            QuickItem("Stories",  Icons.Filled.AutoStories,           onOpenStories),
+            QuickItem("Hadith",    Icons.Filled.FormatQuote,                onOpenHadith),
+            QuickItem("Dua",       Icons.Filled.Favorite,                   onOpenDua),
+            QuickItem("Stories",   Icons.Filled.AutoStories,                onOpenStories),
+            QuickItem("Incidents", Icons.Filled.History,                    onOpenIncidents),
+            QuickItem("Habits",    Icons.Filled.EmojiEvents,                onOpenHabits),
+            QuickItem("Bookmarks", Icons.Filled.Bookmark,                   onOpenBookmarks),
+            QuickItem("Notes",     Icons.AutoMirrored.Filled.Note,          onOpenNotes),
+            QuickItem("Feedback",  Icons.Filled.Feedback,                   onOpenFeedback),
         )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            quickItems.forEach { QuickAccessIcon(it) }
+        // 2 rows × 4 columns
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+            quickItems.chunked(4).forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
+                    row.forEach { item ->
+                        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                            QuickAccessIcon(item)
+                        }
+                    }
+                    repeat(4 - row.size) { Box(modifier = Modifier.weight(1f)) {} }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(12.dp))
 
         // Continue Reading
         SectionTitle("Continue Reading")
@@ -234,6 +276,7 @@ fun HomeScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
+        }
     }
 }
 
@@ -262,26 +305,11 @@ private fun HighlightCard(item: HighlightItem, onClick: () -> Unit) {
         modifier = Modifier.width(180.dp),
         onClick = onClick
     ) {
-        Text(
-            item.tag,
-            style = MaterialTheme.typography.labelMedium,
-            color = Gold500,
-            fontWeight = FontWeight.SemiBold
-        )
+        Text(item.tag, style = MaterialTheme.typography.labelMedium, color = Gold500, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
-        Text(
-            item.text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Emerald900,
-            fontWeight = FontWeight.Medium,
-            maxLines = 3
-        )
+        Text(item.text, style = MaterialTheme.typography.bodyMedium, color = Emerald900, fontWeight = FontWeight.Medium, maxLines = 3)
         Spacer(Modifier.height(10.dp))
-        Text(
-            item.ref,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Text(item.ref, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -296,12 +324,12 @@ private fun QuickAccessIcon(item: QuickItem) {
     ) {
         Box(
             modifier = Modifier
-                .size(56.dp)
+                .size(52.dp)
                 .clip(CircleShape)
                 .background(Gold500.copy(alpha = 0.16f)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(item.icon, null, tint = Emerald900, modifier = Modifier.size(26.dp))
+            Icon(item.icon, null, tint = Emerald900, modifier = Modifier.size(24.dp))
         }
         Spacer(Modifier.height(6.dp))
         Text(
@@ -344,3 +372,73 @@ private fun SyncBanner(text: String, isError: Boolean = false) {
     }
 }
 
+/* -------- Premium announcement dialog -------- */
+@Composable
+private fun AnnouncementDialog(
+    title: String,
+    message: String,
+    onDismiss: () -> Unit,
+) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(com.azhar.noor_e_islam.ui.theme.NoorGradients.EmeraldDeep)
+                .padding(1.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(Gold500.copy(alpha = 0.22f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Filled.Campaign, null, tint = Gold500)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        "Announcement",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Gold500,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = androidx.compose.ui.graphics.Color.White,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (message.isNotBlank()) {
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.9f),
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    TextButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.textButtonColors(contentColor = Gold500),
+                    ) {
+                        Text("Got it", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
+}

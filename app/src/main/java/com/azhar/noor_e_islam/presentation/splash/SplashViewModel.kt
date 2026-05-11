@@ -2,6 +2,7 @@ package com.azhar.noor_e_islam.presentation.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.azhar.noor_e_islam.core.security.AdminConfig
 import com.azhar.noor_e_islam.domain.repository.AuthRepository
 import com.azhar.noor_e_islam.domain.repository.UserPrefsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ sealed interface SplashDestination {
     data object Onboarding : SplashDestination
     data object Auth       : SplashDestination
     data object Home       : SplashDestination
+    data object Admin      : SplashDestination
 }
 
 @HiltViewModel
@@ -31,9 +33,10 @@ class SplashViewModel @Inject constructor(
             val prefs = prefsRepo.prefs.first()
             val user = authRepo.currentUser.first()
             _destination.value = when {
-                !prefs.onboardingDone -> SplashDestination.Onboarding
-                user == null          -> SplashDestination.Auth
-                else                  -> SplashDestination.Home
+                !prefs.onboardingDone                   -> SplashDestination.Onboarding
+                user == null                            -> SplashDestination.Auth
+                AdminConfig.isAdminEmail(user.email)    -> SplashDestination.Admin
+                else                                    -> SplashDestination.Home
             }
         }
     }

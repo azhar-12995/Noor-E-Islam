@@ -3,8 +3,10 @@ package com.azhar.noor_e_islam.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.azhar.noor_e_islam.core.datastore.UserPrefs
+import com.azhar.noor_e_islam.core.datastore.UserPreferences
 import com.azhar.noor_e_islam.core.util.DateUtils
 import com.azhar.noor_e_islam.core.util.Resource
+import com.azhar.noor_e_islam.data.remote.firebase.AnnouncementsFirestoreService
 import com.azhar.noor_e_islam.domain.model.User
 import com.azhar.noor_e_islam.domain.repository.AuthRepository
 import com.azhar.noor_e_islam.domain.repository.UserPrefsRepository
@@ -13,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +30,8 @@ data class HomeState(
     val isQuranSyncing: Boolean = false,
     val quranSyncError: String? = null,
     val totalSurahsLoaded: Int = 0,
+    /** Latest admin announcement to surface as a banner on Home. */
+    val latestAnnouncement: AnnouncementsFirestoreService.Announcement? = null,
 )
 
 @HiltViewModel
@@ -34,6 +39,8 @@ class HomeViewModel @Inject constructor(
     auth: AuthRepository,
     prefsRepo: UserPrefsRepository,
     getSurahs: GetSurahsUseCase,
+    private val announcements: AnnouncementsFirestoreService,
+    private val userPrefs: UserPreferences,
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         HomeState(gregorian = DateUtils.gregorianToday(), hijri = DateUtils.hijriToday())
@@ -71,6 +78,24 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+        }
+        // Latest admin announcement — only emit if the user hasn't dismissed
+        // this exact announcement yet. After dismissal it lives on in the
+        // notifications list, but never re-pops as a dialog on Home.
+        viewModelScope.launch {
+            val latest = runCatching { announcements.latest(1) }.getOrDefault(emptyList()).firstOrNull()
+            val seenId = runCatching { userPrefs.lastSeenAnnouncementId.first() }
+                .getOrDefault("")
+            val toShow = latest?.takeIf { it.id != seenId }
+            _state.update { it.copy(latestAnnouncement = toShow) }
+        }
+    }
+
+    /** Mark the on-Home announcement dialog as seen so it never re-appears. */
+    fun dismissAnnouncement(id: String) {
+        viewModelScope.launch {
+            runCatching { userPrefs.markAnnouncementSeen(id) }
+            _state.update { it.copy(latestAnnouncement = null) }
         }
     }
 }

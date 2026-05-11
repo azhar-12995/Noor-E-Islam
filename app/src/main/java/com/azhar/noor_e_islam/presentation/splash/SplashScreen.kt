@@ -49,6 +49,7 @@ fun SplashScreen(
             is SplashDestination.Onboarding -> onNavigate(Route.Onboarding.route)
             is SplashDestination.Auth       -> onNavigate(Route.Login.route)
             is SplashDestination.Home       -> onNavigate(Route.Home.route)
+            is SplashDestination.Admin      -> onNavigate(Route.AdminDashboard.route)
             null -> Unit
         }
     }

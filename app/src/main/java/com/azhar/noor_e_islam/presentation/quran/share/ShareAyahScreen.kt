@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Facebook
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.azhar.noor_e_islam.ui.theme.ArabicTextStyle
 import com.azhar.noor_e_islam.ui.theme.Emerald900
 import com.azhar.noor_e_islam.ui.theme.Gold500
@@ -36,13 +39,15 @@ import com.azhar.noor_e_islam.ui.theme.Gold500
 fun ShareAyahScreen(
     surahId: Int,
     ayahNumber: Int,
-    arabic: String = "فَنُفِخَ فِي ٱلصُّورِ فَإِذَا هُم مِّنَ ٱلْأَجْدَاثِ إِلَىٰ رَبِّهِمْ يَنسِلُونَ",
-    transliteration: String = "Wa aqimus-salaata wa aatuz-zakaata war-ka'oo ma'ar-raaki'een.",
-    translation: String = "And establish prayer and give zakah, and bow with those who bow down [in worship and obedience].",
-    reference: String = "(2:43)",
     onBack: () -> Unit,
+    viewModel: ShareAyahViewModel = hiltViewModel(),
 ) {
     val ctx = LocalContext.current
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
+    val arabic = ui.arabic
+    val translation = ui.translation
+    val transliteration = ui.transliteration
+    val reference = ui.reference.ifBlank { "($surahId:$ayahNumber)" }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -78,33 +83,41 @@ fun ShareAyahScreen(
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        arabic,
-                        style = ArabicTextStyle.copy(fontSize = 22.sp),
-                        textAlign = TextAlign.Center,
-                        color = Emerald900
-                    )
-                    Spacer(Modifier.height(14.dp))
-                    Text(
-                        transliteration,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        translation,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Emerald900,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        reference,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Gold500,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    if (ui.isLoading) {
+                        CircularProgressIndicator(color = Emerald900, modifier = Modifier.padding(20.dp))
+                    } else {
+                        Text(
+                            arabic,
+                            style = ArabicTextStyle.copy(fontSize = 22.sp),
+                            textAlign = TextAlign.Center,
+                            color = Emerald900
+                        )
+                        if (transliteration.isNotBlank()) {
+                            Spacer(Modifier.height(14.dp))
+                            Text(
+                                transliteration,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        if (translation.isNotBlank()) {
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                translation,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Emerald900,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            reference,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Gold500,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 

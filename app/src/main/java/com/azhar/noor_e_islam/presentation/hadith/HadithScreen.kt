@@ -42,6 +42,7 @@ fun HadithScreen(
     viewModel: HadithViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val fontScale by viewModel.fontScale.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -84,7 +85,7 @@ fun HadithScreen(
         when {
             state.isLoading -> LoadingState(padding)
             state.error != null -> ErrorState(state.error!!, padding) { viewModel.load() }
-            state.hadith != null -> HadithContent(state.hadith!!, padding)
+            state.hadith != null -> HadithContent(state.hadith!!, padding, fontScale)
         }
     }
 }
@@ -92,7 +93,7 @@ fun HadithScreen(
 /* --------------------------- Content --------------------------- */
 
 @Composable
-private fun HadithContent(h: DailyHadith, padding: PaddingValues) {
+private fun HadithContent(h: DailyHadith, padding: PaddingValues, fontScale: Float) {
     val context = LocalContext.current
 
     Column(
@@ -109,7 +110,7 @@ private fun HadithContent(h: DailyHadith, padding: PaddingValues) {
         LanguageCard(label = "العربية", tag = "AR") {
             Text(
                 text = h.arabic.ifBlank { "—" },
-                style = ArabicTextStyle.copy(fontSize = 22.sp, lineHeight = 42.sp),
+                style = ArabicTextStyle.copy(fontSize = 22.sp * fontScale, lineHeight = 42.sp * fontScale),
                 textAlign = TextAlign.Right,
                 color = Emerald900,
                 modifier = Modifier.fillMaxWidth(),
@@ -126,8 +127,8 @@ private fun HadithContent(h: DailyHadith, padding: PaddingValues) {
             Text(
                 h.english.ifBlank { "—" },
                 color = Emerald900,
-                fontSize = 16.sp,
-                lineHeight = 26.sp,
+                fontSize = 16.sp * fontScale,
+                lineHeight = 26.sp * fontScale,
                 fontWeight = FontWeight.Medium,
             )
         }
@@ -149,8 +150,8 @@ private fun HadithContent(h: DailyHadith, padding: PaddingValues) {
             Text(
                 h.urdu.ifBlank { "—" },
                 color = Emerald900,
-                fontSize = 16.sp,
-                lineHeight = 30.sp,
+                fontSize = 16.sp * fontScale,
+                lineHeight = 30.sp * fontScale,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Right,
                 modifier = Modifier.fillMaxWidth(),

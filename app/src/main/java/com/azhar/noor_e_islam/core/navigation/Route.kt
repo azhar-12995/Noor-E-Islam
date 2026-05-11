@@ -22,8 +22,10 @@ sealed class Route(val route: String) {
     data object Profile     : Route("profile")
 
     // Quran sub-flows
-    data object QuranReader : Route("quran/reader/{surahId}") {
-        fun create(surahId: Int) = "quran/reader/$surahId"
+    data object QuranReader : Route("quran/reader/{surahId}?ayah={ayah}") {
+        fun create(surahId: Int, ayah: Int? = null): String =
+            if (ayah != null && ayah > 0) "quran/reader/$surahId?ayah=$ayah"
+            else "quran/reader/$surahId?ayah=0"
     }
     data object QuranSettings : Route("quran/settings")
     data object QuranShare    : Route("quran/share/{surahId}/{ayah}") {
@@ -47,9 +49,20 @@ sealed class Route(val route: String) {
     data object Settings    : Route("settings")
     data object About       : Route("about")
     data object Hadith      : Route("hadith")
-    data object Downloads   : Route("downloads")
     data object Qibla       : Route("qibla")
     data object PrayerTimes : Route("prayer-times")
+
+    // User-area additions
+    data object Notifications : Route("notifications")
+    data object EditProfile   : Route("profile/edit")
+    data object Feedback      : Route("feedback?highlight={highlight}") {
+        fun create(highlight: String? = null) =
+            if (highlight.isNullOrBlank()) "feedback?highlight="
+            else "feedback?highlight=$highlight"
+    }
+
+    // Admin
+    data object AdminDashboard : Route("admin/dashboard")
 
     companion object {
         val bottomNav = listOf(Home, QuranList, Learn, Calendar, Profile)

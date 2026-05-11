@@ -30,6 +30,7 @@ fun AyahCard(
     translation: String,
     reference: String,
     modifier: Modifier = Modifier,
+    fontScale: Float = 1f,
     isPlaying: Boolean = false,
     isBookmarked: Boolean = false,
     onPlay: (() -> Unit)? = null,
@@ -56,7 +57,7 @@ fun AyahCard(
         Spacer(Modifier.height(12.dp))
         Text(
             text = arabic,
-            style = ArabicTextStyle,
+            style = ArabicTextStyle.copy(fontSize = ArabicTextStyle.fontSize * fontScale),
             textAlign = TextAlign.End,
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface
@@ -65,7 +66,9 @@ fun AyahCard(
             Spacer(Modifier.height(12.dp))
             Text(
                 text = translation,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

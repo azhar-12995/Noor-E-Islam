@@ -69,12 +69,11 @@ fun NooreIslamTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Deep emerald status bar — visually separated from content, premium dark feel.
-            val statusBar = if (darkTheme) Midnight else Emerald900
-            window.statusBarColor = statusBar.toArgb()
-            window.navigationBarColor = colorScheme.surface.toArgb()
+            // Status bar is configured authoritatively by MainActivity.enableEdgeToEdge()
+            // (so it works on API 35+ and OEM ROMs). Here we only ensure the icon
+            // tint stays light (Emerald900 background needs white icons).
             WindowCompat.getInsetsController(window, view).apply {
-                isAppearanceLightStatusBars = false  // dark bg → white icons
+                isAppearanceLightStatusBars = false
                 isAppearanceLightNavigationBars = !darkTheme
             }
         }

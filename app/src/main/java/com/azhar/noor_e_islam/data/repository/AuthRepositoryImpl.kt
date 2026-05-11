@@ -2,6 +2,7 @@ package com.azhar.noor_e_islam.data.repository
 
 import com.azhar.noor_e_islam.core.util.Resource
 import com.azhar.noor_e_islam.core.util.safeCall
+import com.azhar.noor_e_islam.data.remote.firebase.UserProfileFirestoreService
 import com.azhar.noor_e_islam.domain.model.User
 import com.azhar.noor_e_islam.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -17,6 +18,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
+    private val profileService: UserProfileFirestoreService,
 ) : AuthRepository {
 
     override val currentUser: Flow<User?> = callbackFlow {
@@ -36,6 +38,19 @@ class AuthRepositoryImpl @Inject constructor(
             UserProfileChangeRequest.Builder().setDisplayName(name).build()
         ).await()
         auth.currentUser!!.sendEmailVerification().await()
+
+        // Persist an AES-GCM-encrypted profile doc to Firestore so the user's
+        // personal info is never stored in plaintext outside Firebase Auth.
+        runCatching {
+            profileService.save(
+                UserProfileFirestoreService.ProfileData(
+                    name = name,
+                    email = email,
+                    photoBase64 = "",
+                )
+            )
+        }
+
         auth.currentUser!!.toDomain()
     }
 
