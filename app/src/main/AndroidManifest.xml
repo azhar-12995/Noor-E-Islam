@@ -11,6 +11,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- Exact alarms — required for accurate prayer-time notifications. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
     <uses-feature android:name="android.hardware.sensor.compass" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
@@ -66,9 +70,47 @@
             </intent-filter>
         </receiver>
 
+        <!-- Local alarm broadcast for prayer-time notifications -->
+        <receiver
+            android:name=".core.notifications.PrayerAlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.azhar.noor_e_islam.PRAYER_ALARM" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Re-schedules prayer alarms after device reboot / app update -->
+        <receiver
+            android:name=".core.notifications.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
+
+        <!--
+            Disable WorkManager's default startup initializer so it doesn't race
+            ahead of Application.onCreate() and initialize with the default
+            (non-Hilt) WorkerFactory. We supply our own configuration via
+            NooreIslamApp implementing Configuration.Provider, which is consulted
+            on the first WorkManager.getInstance() call from onCreate().
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
     </application>
 

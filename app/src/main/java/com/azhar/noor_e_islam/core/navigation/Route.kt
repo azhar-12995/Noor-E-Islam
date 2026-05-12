@@ -52,6 +52,16 @@ sealed class Route(val route: String) {
     data object Qibla       : Route("qibla")
     data object PrayerTimes : Route("prayer-times")
 
+    // Learn sub-flows
+    data object Pillars       : Route("learn/pillars")
+    data object PillarDetail  : Route("learn/pillars/{index}") {
+        fun create(index: Int) = "learn/pillars/$index"
+    }
+    data object Kalmas        : Route("learn/kalmas")
+    data object KalmaDetail   : Route("learn/kalmas/{index}") {
+        fun create(index: Int) = "learn/kalmas/$index"
+    }
+
     // User-area additions
     data object Notifications : Route("notifications")
     data object EditProfile   : Route("profile/edit")

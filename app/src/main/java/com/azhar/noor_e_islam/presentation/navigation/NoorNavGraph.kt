@@ -22,6 +22,10 @@ import com.azhar.noor_e_islam.presentation.hadith.HadithScreen
 import com.azhar.noor_e_islam.presentation.home.HomeScreen
 import com.azhar.noor_e_islam.presentation.incidents.IncidentsScreen
 import com.azhar.noor_e_islam.presentation.learn.LearnScreen
+import com.azhar.noor_e_islam.presentation.learn.pillars.PillarsScreen
+import com.azhar.noor_e_islam.presentation.learn.pillars.PillarDetailScreen
+import com.azhar.noor_e_islam.presentation.learn.kalmas.KalmasScreen
+import com.azhar.noor_e_islam.presentation.learn.kalmas.KalmaDetailScreen
 import com.azhar.noor_e_islam.presentation.notes.NoteEditorScreen
 import com.azhar.noor_e_islam.presentation.notes.NotesScreen
 import com.azhar.noor_e_islam.presentation.notifications.NotificationsScreen
@@ -129,7 +133,13 @@ fun NoorNavGraph(
                 onSettings = { navController.navigate(Route.QuranSettings.route) }
             )
         }
-        composable(Route.Learn.route)    { LearnScreen(onBack = { navController.popBackStack() }) }
+        composable(Route.Learn.route)    {
+            LearnScreen(
+                onBack = { navController.popBackStack() },
+                onOpenPillars = { navController.navigate(Route.Pillars.route) },
+                onOpenKalmas = { navController.navigate(Route.Kalmas.route) },
+            )
+        }
         composable(Route.Calendar.route) { CalendarScreen(onBack = { navController.popBackStack() }) }
         composable(Route.Profile.route)  {
             ProfileScreen(
@@ -214,6 +224,38 @@ fun NoorNavGraph(
         composable(Route.About.route)     { SimpleScreen(title = "About Noor-e-Islam", onBack = { navController.popBackStack() }) }
         composable(Route.Qibla.route)     { QiblaScreen(onBack = { navController.popBackStack() }) }
         composable(Route.PrayerTimes.route) { PrayerTimesScreen(onBack = { navController.popBackStack() }) }
+
+        // Learn sub-flows
+        composable(Route.Pillars.route) {
+            PillarsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenPillar = { idx -> navController.navigate(Route.PillarDetail.create(idx)) },
+            )
+        }
+        composable(
+            route = Route.PillarDetail.route,
+            arguments = listOf(navArgument("index") { type = NavType.IntType }),
+        ) { entry ->
+            PillarDetailScreen(
+                index = entry.arguments?.getInt("index") ?: 0,
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(Route.Kalmas.route) {
+            KalmasScreen(
+                onBack = { navController.popBackStack() },
+                onOpenKalma = { idx -> navController.navigate(Route.KalmaDetail.create(idx)) },
+            )
+        }
+        composable(
+            route = Route.KalmaDetail.route,
+            arguments = listOf(navArgument("index") { type = NavType.IntType }),
+        ) { entry ->
+            KalmaDetailScreen(
+                index = entry.arguments?.getInt("index") ?: 0,
+                onBack = { navController.popBackStack() },
+            )
+        }
 
         // User-area: Notifications, Edit Profile, Feedback
         composable(Route.Notifications.route) {

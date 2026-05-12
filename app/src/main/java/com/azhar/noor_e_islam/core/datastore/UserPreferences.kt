@@ -46,6 +46,9 @@ class UserPreferences @Inject constructor(
         val LAST_AYAH       = intPreferencesKey("last_ayah")
         val NOTIFS_SEEN_AT  = longPreferencesKey("notifs_last_seen_at")
         val ANN_SEEN_ID     = stringPreferencesKey("last_seen_announcement_id")
+        val PRAYER_LAT      = stringPreferencesKey("prayer_lat")  // stored as String for DataStore (no Double key)
+        val PRAYER_LNG      = stringPreferencesKey("prayer_lng")
+        val HADITH_NOTIF_DATE = stringPreferencesKey("hadith_notif_last_date")
     }
 
     val prefs: Flow<UserPrefs> = context.userDataStore.data.map { p ->
@@ -83,5 +86,30 @@ class UserPreferences @Inject constructor(
         context.userDataStore.data.map { it[Keys.ANN_SEEN_ID].orEmpty() }
     suspend fun markAnnouncementSeen(id: String) {
         context.userDataStore.edit { it[Keys.ANN_SEEN_ID] = id }
+    }
+
+    /** Last known (lat,lng) used by background prayer-alarm scheduling when
+     *  the app is killed and we can't query FusedLocation any more. */
+    val cachedLocation: Flow<Pair<Double, Double>?> =
+        context.userDataStore.data.map { p ->
+            val lat = p[Keys.PRAYER_LAT]?.toDoubleOrNull()
+            val lng = p[Keys.PRAYER_LNG]?.toDoubleOrNull()
+            if (lat != null && lng != null) lat to lng else null
+        }
+    suspend fun saveLocation(lat: Double, lng: Double) {
+        context.userDataStore.edit {
+            it[Keys.PRAYER_LAT] = lat.toString()
+            it[Keys.PRAYER_LNG] = lng.toString()
+        }
+    }
+
+    /** YYYY-MM-DD of the last day a "Hadith of the Day" notification was posted.
+     *  Used by [com.azhar.noor_e_islam.core.notifications.HadithDailyWorker] to
+     *  guarantee at most one notification per calendar day, even if the worker
+     *  is re-triggered (e.g. after a reboot mid-day). */
+    val hadithNotifDate: Flow<String> =
+        context.userDataStore.data.map { it[Keys.HADITH_NOTIF_DATE].orEmpty() }
+    suspend fun setHadithNotifDate(date: String) {
+        context.userDataStore.edit { it[Keys.HADITH_NOTIF_DATE] = date }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mosque
 import androidx.compose.material.icons.filled.People
@@ -28,20 +29,25 @@ import com.azhar.noor_e_islam.core.ui.components.IslamicCard
 import com.azhar.noor_e_islam.ui.theme.Emerald900
 import com.azhar.noor_e_islam.ui.theme.Gold500
 
-private data class LearnTopic(val title: String, val icon: ImageVector)
+private data class LearnTopic(val title: String, val icon: ImageVector, val key: String)
 
 private val topics = listOf(
-    LearnTopic("Pillars of Islam",   Icons.Filled.Mosque),
-    LearnTopic("Iman (Beliefs)",     Icons.Filled.Favorite),
-    LearnTopic("Seerah of Prophet ﷺ", Icons.Filled.People),
-    LearnTopic("History of Islam",   Icons.Filled.History),
-    LearnTopic("Akhlaq (Character)", Icons.Filled.Bolt),
-    LearnTopic("Fiqh (Basics)",      Icons.AutoMirrored.Filled.MenuBook),
+    LearnTopic("Pillars of Islam",   Icons.Filled.Mosque,                     "pillars"),
+    LearnTopic("Kalmas",             Icons.Filled.FormatQuote,                "kalmas"),
+    LearnTopic("Iman (Beliefs)",     Icons.Filled.Favorite,                   "iman"),
+    LearnTopic("Seerah of Prophet ﷺ", Icons.Filled.People,                    "seerah"),
+    LearnTopic("History of Islam",   Icons.Filled.History,                    "history"),
+    LearnTopic("Akhlaq (Character)", Icons.Filled.Bolt,                       "akhlaq"),
+    LearnTopic("Fiqh (Basics)",      Icons.AutoMirrored.Filled.MenuBook,      "fiqh"),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LearnScreen(onBack: () -> Unit = {}) {
+fun LearnScreen(
+    onBack: () -> Unit = {},
+    onOpenPillars: () -> Unit = {},
+    onOpenKalmas: () -> Unit = {},
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -73,7 +79,13 @@ fun LearnScreen(onBack: () -> Unit = {}) {
             items(topics) { topic ->
                 IslamicCard(
                     modifier = Modifier.fillMaxWidth().height(140.dp),
-                    onClick = {}
+                    onClick = {
+                        when (topic.key) {
+                            "pillars" -> onOpenPillars()
+                            "kalmas"  -> onOpenKalmas()
+                            else      -> Unit
+                        }
+                    }
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),

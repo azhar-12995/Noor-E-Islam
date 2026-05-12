@@ -1,10 +1,10 @@
 package com.azhar.noor_e_islam.presentation.quran.list
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
@@ -17,11 +17,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.azhar.noor_e_islam.R
 import com.azhar.noor_e_islam.core.ui.components.ErrorState
 import com.azhar.noor_e_islam.core.ui.components.IslamicCard
 import com.azhar.noor_e_islam.core.ui.components.LoadingState
@@ -101,18 +103,22 @@ fun QuranListScreen(
 private fun SurahRow(surah: Surah, onClick: () -> Unit) {
     IslamicCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // Decorative 8-pointed star (number_bg) with the surah number
+            // centered on top — gives the list its classic Quran-app look.
             Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.size(44.dp),
+                contentAlignment = Alignment.Center,
             ) {
+                Image(
+                    painter = painterResource(R.drawable.number_bg),
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                )
                 Text(
                     text = surah.number.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
                 )
             }
             Spacer(Modifier.width(12.dp))
