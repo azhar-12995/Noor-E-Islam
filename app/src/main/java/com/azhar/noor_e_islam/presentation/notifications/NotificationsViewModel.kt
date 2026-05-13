@@ -73,39 +73,6 @@ class NotificationsViewModel @Inject constructor(
                 val now = System.currentTimeMillis()
                 val out = mutableListOf<NotifItem>()
 
-                /* ---- Prayer reminders: today only, upcoming first then current day ---- */
-                val loc = runCatching { locationService.currentLocation() }.getOrNull()
-                if (loc != null) {
-                    val cal = Calendar.getInstance()
-                    val times = PrayerTimesCalculator.compute(
-                        date = cal.time,
-                        latitude = loc.latitude,
-                        longitude = loc.longitude,
-                        timeZone = TimeZone.getDefault(),
-                    )
-                    val ymd = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(cal.time)
-                    val fmt = SimpleDateFormat("hh:mm a", Locale.getDefault())
-                    PrayerTimesCalculator.Prayer.entries.forEach { p ->
-                        val h = times[p]
-                        val hh = h.toInt()
-                        val mm = ((h - hh) * 60).toInt()
-                        val target = Calendar.getInstance().apply {
-                            set(Calendar.HOUR_OF_DAY, hh)
-                            set(Calendar.MINUTE, mm)
-                            set(Calendar.SECOND, 0)
-                        }
-                        // Only show prayers for the rest of today; skip ones already past.
-                        if (target.timeInMillis < now) return@forEach
-                        out += NotifItem(
-                            id = "prayer-$ymd-${p.name}",
-                            category = NotifCategory.PRAYER,
-                            title = "${p.displayName} prayer",
-                            message = "Today at ${fmt.format(target.time)}",
-                            timestamp = target.timeInMillis,
-                            target = NotifTarget.PrayerTimes,
-                        )
-                    }
-                }
 
                 /* ---- Hadith of the Day ---- */
                 val hadith = runCatching { hadithRepo.todayHadith() }.getOrNull()?.getOrNull()

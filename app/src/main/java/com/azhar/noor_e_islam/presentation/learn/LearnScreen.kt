@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mosque
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -34,6 +36,8 @@ private data class LearnTopic(val title: String, val icon: ImageVector, val key:
 private val topics = listOf(
     LearnTopic("Pillars of Islam",   Icons.Filled.Mosque,                     "pillars"),
     LearnTopic("Kalmas",             Icons.Filled.FormatQuote,                "kalmas"),
+    LearnTopic("Namaz",              Icons.Filled.SelfImprovement,            "namaz"),
+    LearnTopic("Wazu",               Icons.Filled.WaterDrop,                  "wazu"),
     LearnTopic("Iman (Beliefs)",     Icons.Filled.Favorite,                   "iman"),
     LearnTopic("Seerah of Prophet ﷺ", Icons.Filled.People,                    "seerah"),
     LearnTopic("History of Islam",   Icons.Filled.History,                    "history"),
@@ -47,6 +51,8 @@ fun LearnScreen(
     onBack: () -> Unit = {},
     onOpenPillars: () -> Unit = {},
     onOpenKalmas: () -> Unit = {},
+    onOpenNamaz: () -> Unit = {},
+    onOpenWazu: () -> Unit = {},
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -83,6 +89,8 @@ fun LearnScreen(
                         when (topic.key) {
                             "pillars" -> onOpenPillars()
                             "kalmas"  -> onOpenKalmas()
+                            "namaz"   -> onOpenNamaz()
+                            "wazu"    -> onOpenWazu()
                             else      -> Unit
                         }
                     }

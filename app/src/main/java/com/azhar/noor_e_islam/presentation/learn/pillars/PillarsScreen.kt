@@ -36,7 +36,7 @@ internal data class Pillar(
     val emoji: String,
     val summary: String,
     val details: List<String>,
-    @DrawableRes val image: Int? = null,
+    @DrawableRes val image: Int,
 )
 
 internal val pillars: List<Pillar> = listOf(
@@ -141,7 +141,7 @@ fun PillarsScreen(
         ) {
             itemsIndexed(pillars) { index, pillar ->
                 Image(
-                    painter = painterResource(pillar.image ?: R.drawable.pillers_of_islam),
+                    painter = painterResource(pillar.image),
                     contentDescription = pillar.title,
                     contentScale = ContentScale.FillWidth,
                     modifier = Modifier
@@ -182,16 +182,6 @@ fun PillarDetailScreen(index: Int, onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Hero image — uses the per-pillar drawable if provided, otherwise the group banner.
-            Image(
-                painter = painterResource(pillar.image ?: R.drawable.pillers_of_islam),
-                contentDescription = pillar.title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(20.dp)),
-            )
 
             IslamicCard(modifier = Modifier.fillMaxWidth()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {

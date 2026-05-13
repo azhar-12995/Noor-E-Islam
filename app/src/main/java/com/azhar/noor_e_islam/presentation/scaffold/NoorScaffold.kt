@@ -8,6 +8,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Home
@@ -44,7 +45,7 @@ private data class TabItem(val route: Route, val labelRes: Int, val icon: ImageV
 
 private val tabs = listOf(
     TabItem(Route.Home,      R.string.home,    Icons.Filled.Home),
-    TabItem(Route.QuranList, R.string.quran,   Icons.Filled.MenuBook),
+    TabItem(Route.QuranList, R.string.quran, Icons.AutoMirrored.Filled.MenuBook),
     TabItem(Route.Learn,     R.string.learn,   Icons.Filled.AutoStories),
     TabItem(Route.Calendar,  R.string.calendar,Icons.Filled.CalendarMonth),
     TabItem(Route.Profile,   R.string.profile, Icons.Filled.Person),

@@ -1,9 +1,6 @@
 package com.azhar.noor_e_islam.presentation.learn.kalmas
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -14,87 +11,83 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.azhar.noor_e_islam.R
 import com.azhar.noor_e_islam.core.ui.components.IslamicCard
 import com.azhar.noor_e_islam.ui.theme.Emerald900
 import com.azhar.noor_e_islam.ui.theme.Gold500
+import com.azhar.noor_e_islam.ui.theme.NoorGradients
 
 internal data class Kalma(
     val number: Int,
-    val name: String,
-    val title: String,
+    val name: String,            // English / Roman name
+    val urduName: String,        // Urdu name (e.g. "پہلا کلمہ طیب")
     val arabic: String,
-    val transliteration: String,
-    val translation: String,
-    val virtue: String,
-    @DrawableRes val image: Int? = null,
+    val urdu: String,            // Urdu translation
+    val english: String,         // English translation
 )
 
 internal val kalmas: List<Kalma> = listOf(
     Kalma(
         number = 1,
-        name = "Kalma Tayyab",
-        title = "The Word of Purity",
-        arabic = "لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَّسُولُ اللهِ",
-        transliteration = "Laa ilaaha illa-llaahu Muhammadu-r Rasoolu-llah",
-        translation = "There is no god but Allah; Muhammad is the Messenger of Allah.",
-        virtue = "The First Kalma is the foundation of Islam. It affirms the oneness of Allah (Tawheed) and the prophethood of Muhammad ﷺ. A person enters Islam upon believing and reciting it sincerely.",
-        image = R.drawable.first_kalma_detail,
+        name = "Kalima Tayyibah",
+        urduName = "پہلا کلمہ طیب",
+        arabic = "لَا إِلٰهَ إِلَّا اللّٰهُ مُحَمَّدٌ رَّسُوْلُ اللّٰهِ",
+        urdu = "اللہ کے سوا کوئی عبادت کے لائق نہیں، محمد ﷺ اللہ کے رسول ہیں۔",
+        english = "There is none worthy of worship except God, and Muhammad ﷺ is the Messenger of God.",
     ),
     Kalma(
         number = 2,
-        name = "Kalma Shahadat",
-        title = "The Word of Testimony",
-        arabic = "أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ",
-        transliteration = "Ash-hadu allaa ilaaha illa-llaahu wahdahoo laa shareeka lahoo wa ash-hadu anna Muhammadan 'abduhoo wa Rasooluh",
-        translation = "I bear witness that there is no god but Allah, He is alone and has no partner, and I bear witness that Muhammad is His servant and messenger.",
-        virtue = "Recited in every prayer during Tashahhud. Bears explicit witness to Tawheed and to the servitude and messengership of the Prophet ﷺ.",
+        name = "Kalima Shahadat",
+        urduName = "دوسرا کلمہ شہادت",
+        arabic = "أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللّٰهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُوْلُهُ",
+        urdu = "میں گواہی دیتا ہوں کہ اللہ کے سوا کوئی عبادت کے لائق نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اور میں گواہی دیتا ہوں کہ محمد ﷺ اللہ کے بندے اور اس کے رسول ہیں۔",
+        english = "I bear witness that there is none worthy of worship except God; He is One and has no partner. And I bear witness that Muhammad ﷺ is His servant and Messenger.",
     ),
     Kalma(
         number = 3,
-        name = "Kalma Tamjeed",
-        title = "The Word of Glorification",
-        arabic = "سُبْحَانَ اللهِ وَالْحَمْدُ لِلهِ وَلَا إِلٰهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ الْعَلِيِّ الْعَظِيمِ",
-        transliteration = "SubhaanAllaahi wal-hamdu lillaahi wa laa ilaaha illa-llaahu wallaahu akbar wa laa hawla wa laa quwwata illaa billaahil-'aliyyil-'azeem",
-        translation = "Glory be to Allah, and praise be to Allah, and there is no god but Allah, and Allah is the Greatest. There is no power and no strength except with Allah, the Most High, the Most Great.",
-        virtue = "Contains the Baqiyatus-Salihat (\u201Cthe everlasting good deeds\u201D) mentioned in the Qur'an — these words are beloved to Allah and heavy on the scale of deeds.",
+        name = "Kalima Tamjeed",
+        urduName = "تیسرا کلمہ تمجید",
+        arabic = "سُبْحَانَ اللّٰهِ، وَالْحَمْدُ لِلّٰهِ، وَلَا إِلٰهَ إِلَّا اللّٰهُ، وَاللّٰهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللّٰهِ الْعَلِيِّ الْعَظِيْمِ",
+        urdu = "اللہ پاک ہے، اور تمام تعریفیں اللہ ہی کے لیے ہیں، اور اللہ کے سوا کوئی عبادت کے لائق نہیں، اور اللہ سب سے بڑا ہے۔ گناہوں سے بچنے کی طاقت اور نیکی کرنے کی قوت اللہ ہی کی طرف سے ہے، جو بہت بلند اور عظمت والا ہے۔",
+        english = "Glory be to God, and all praise belongs to God. There is none worthy of worship except God, and God is the Greatest. There is no power and no strength except through God, the Most High, the Most Great.",
     ),
     Kalma(
         number = 4,
-        name = "Kalma Tawheed",
-        title = "The Word of Oneness",
-        arabic = "لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لَا يَمُوتُ أَبَدًا أَبَدًا، ذُو الْجَلَالِ وَالْإِكْرَامِ بِيَدِهِ الْخَيْرُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",
-        transliteration = "Laa ilaaha illa-llaahu wahdahoo laa shareeka lah, lahul-mulku wa lahul-hamdu yuhyee wa yumeetu wa huwa hayyun laa yamootu abadan abadaa, dhul-jalaali wal-ikraam, bi-yadihil-khayru wa huwa 'alaa kulli shay'in qadeer",
-        translation = "There is no god but Allah, He is alone and has no partner. To Him belongs the kingdom and all praise. He gives life and causes death. He is Ever-Living and will never die. Possessor of Majesty and Honour — in His hand is all good, and He is capable of all things.",
-        virtue = "A complete declaration of Allah's absolute oneness, eternity, sovereignty and power. Reciting it strengthens conviction in Tawheed.",
+        name = "Kalima Tauheed",
+        urduName = "چوتھا کلمہ توحید",
+        arabic = "لَا إِلٰهَ إِلَّا اللّٰهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِيْ وَيُمِيْتُ، وَهُوَ حَيٌّ لَا يَمُوْتُ أَبَدًا أَبَدًا، ذُو الْجَلَالِ وَالْإِكْرَامِ، بِيَدِهِ الْخَيْرُ، وَهُوَ عَلٰى كُلِّ شَيْءٍ قَدِيْرٌ",
+        urdu = "اللہ کے سوا کوئی عبادت کے لائق نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں۔ اسی کے لیے بادشاہی ہے اور اسی کے لیے تمام تعریف ہے۔ وہی زندہ کرتا ہے اور موت دیتا ہے، اور وہ ہمیشہ زندہ ہے، اسے کبھی موت نہیں آئے گی۔ وہ عظمت اور بزرگی والا ہے۔ اسی کے ہاتھ میں بھلائی ہے، اور وہ ہر چیز پر قادر ہے۔",
+        english = "There is none worthy of worship except God. He is One and has no partner. To Him belongs the kingdom, and to Him belongs all praise. He gives life and causes death, and He is Ever-Living and never dies. He is the Lord of Majesty and Honor. In His hand is all good, and He has power over everything.",
     ),
     Kalma(
         number = 5,
-        name = "Kalma Astaghfar",
-        title = "The Word of Seeking Forgiveness",
-        arabic = "أَسْتَغْفِرُ اللهَ رَبِّي مِنْ كُلِّ ذَنْبٍ أَذْنَبْتُهُ عَمَدًا أَوْ خَطَأً سِرًّا أَوْ عَلَانِيَةً وَأَتُوبُ إِلَيْهِ مِنَ الذَّنْبِ الَّذِي أَعْلَمُ وَمِنَ الذَّنْبِ الَّذِي لَا أَعْلَمُ، إِنَّكَ أَنْتَ عَلَّامُ الْغُيُوبِ وَسَتَّارُ الْعُيُوبِ وَغَفَّارُ الذُّنُوبِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ الْعَلِيِّ الْعَظِيمِ",
-        transliteration = "Astaghfirullaaha rabbee min kulli dhambin adhnabtuhoo 'amadan aw khata-an sirran aw 'alaaniyatan wa atoobu ilayhi min adh-dhambil-ladhee a'lamu wa min adh-dhambil-ladhee laa a'lam. Innaka anta 'allaamul-ghuyoobi wa sattaarul-'uyoobi wa ghaffaarudh-dhunoobi wa laa hawla wa laa quwwata illaa billaahil-'aliyyil-'azeem",
-        translation = "I seek forgiveness from Allah my Lord for every sin I have committed — knowingly or unknowingly, secretly or openly — and I turn in repentance to Him from the sin I know and the sin I do not know. You are the Knower of the unseen, the Concealer of faults, and the Forgiver of sins. There is no power and no strength except with Allah, the Most High, the Most Great.",
-        virtue = "A comprehensive du'a of repentance. Establishes the habit of seeking forgiveness, which the Prophet ﷺ did over 70 times a day.",
+        name = "Kalima Astaghfar",
+        urduName = "پانچواں کلمہ استغفار",
+        arabic = "أَسْتَغْفِرُ اللّٰهَ رَبِّيْ مِنْ كُلِّ ذَنْبٍ أَذْنَبْتُهُ عَمَدًا أَوْ خَطَأً، سِرًّا أَوْ عَلَانِيَةً، وَأَتُوْبُ إِلَيْهِ مِنَ الذَّنْبِ الَّذِيْ أَعْلَمُ، وَمِنَ الذَّنْبِ الَّذِيْ لَا أَعْلَمُ، إِنَّكَ أَنْتَ عَلَّامُ الْغُيُوْبِ، وَسَتَّارُ الْعُيُوْبِ، وَغَفَّارُ الذُّنُوْبِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللّٰهِ الْعَلِيِّ الْعَظِيْمِ",
+        urdu = "میں اللہ سے معافی مانگتا ہوں، جو میرا رب ہے، ہر اس گناہ سے جو میں نے جان بوجھ کر یا بھول کر، چھپ کر یا کھلم کھلا کیا۔ اور میں اس گناہ سے بھی توبہ کرتا ہوں جو مجھے معلوم ہے، اور اس گناہ سے بھی جو مجھے معلوم نہیں۔ بے شک تو ہی غیب کی باتوں کو خوب جاننے والا، عیبوں کو چھپانے والا، اور گناہوں کو بہت بخشنے والا ہے۔ گناہوں سے بچنے کی طاقت اور نیکی کرنے کی قوت اللہ ہی کی طرف سے ہے، جو بہت بلند اور عظمت والا ہے۔",
+        english = "I seek forgiveness from God, my Lord, for every sin I have committed knowingly or unknowingly, secretly or openly. I repent to Him for the sins I know and for the sins I do not know. Surely, You are the Knower of the unseen, the Concealer of faults, and the Forgiver of sins. There is no power and no strength except through God, the Most High, the Most Great.",
     ),
     Kalma(
         number = 6,
-        name = "Kalma Radd-e-Kufr",
-        title = "The Word of Rejection of Disbelief",
-        arabic = "اللّٰهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ أَنْ أُشْرِكَ بِكَ شَيْئًا وَأَنَا أَعْلَمُ بِهِ وَأَسْتَغْفِرُكَ لِمَا لَا أَعْلَمُ بِهِ، تُبْتُ عَنْهُ وَتَبَرَّأْتُ مِنَ الْكُفْرِ وَالشِّرْكِ وَالْمَعَاصِي كُلِّهَا، وَأَسْلَمْتُ وَأَقُولُ لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَّسُولُ اللهِ",
-        transliteration = "Allaahumma innee a'oodhu bika min an ushrika bika shay-an wa anaa a'lamu bihee wa astaghfiruka limaa laa a'lamu bih, tubtu 'anhu wa tabarra-tu minal-kufri wash-shirki wal-ma'aasee kullihaa wa aslamtu wa aqoolu laa ilaaha illa-llaahu Muhammadur-Rasoolullaah",
-        translation = "O Allah, I seek refuge in You from associating any partner with You knowingly, and I seek Your forgiveness for what I do not know. I repent from it and I dissociate myself from disbelief, polytheism and all sins. I submit to You, and I say: There is no god but Allah, Muhammad is the Messenger of Allah.",
-        virtue = "A renunciation of disbelief and polytheism, and a renewed submission to Allah. Useful for renewing one's faith and seeking refuge from unknown sins.",
+        name = "Kalima Radd-e-Kufr",
+        urduName = "چھٹا کلمہ ردِ کفر",
+        arabic = "اللّٰهُمَّ إِنِّيْ أَعُوْذُ بِكَ مِنْ أَنْ أُشْرِكَ بِكَ شَيْئًا وَأَنَا أَعْلَمُ بِهِ، وَأَسْتَغْفِرُكَ لِمَا لَا أَعْلَمُ بِهِ، تُبْتُ عَنْهُ، وَتَبَرَّأْتُ مِنَ الْكُفْرِ وَالشِّرْكِ وَالْكِذْبِ وَالْغِيْبَةِ وَالْبِدْعَةِ وَالنَّمِيْمَةِ وَالْفَوَاحِشِ وَالْبُهْتَانِ وَالْمَعَاصِيْ كُلِّهَا، وَأَسْلَمْتُ، وَأَقُوْلُ: لَا إِلٰهَ إِلَّا اللّٰهُ مُحَمَّدٌ رَّسُوْلُ اللّٰهِ",
+        urdu = "اے اللہ! میں تیری پناہ مانگتا ہوں اس بات سے کہ میں جان بوجھ کر کسی چیز کو تیرا شریک بناؤں، اور میں تجھ سے اس چیز کی معافی مانگتا ہوں جس کا مجھے علم نہیں۔ میں نے اس سے توبہ کی، اور میں کفر، شرک، جھوٹ، غیبت، بدعت، چغلی، بے حیائی، بہتان، اور تمام نافرمانیوں سے بیزار ہوا۔ میں اسلام قبول کرتا ہوں، اور کہتا ہوں: اللہ کے سوا کوئی عبادت کے لائق نہیں، محمد ﷺ اللہ کے رسول ہیں۔",
+        english = "O God! I seek refuge in You from knowingly associating anything with You, and I seek Your forgiveness for what I do unknowingly. I repent from it, and I distance myself from disbelief, polytheism, lying, backbiting, religious innovation, tale-bearing, indecency, false accusation, and all acts of disobedience. I submit, and I declare: There is none worthy of worship except God, and Muhammad ﷺ is the Messenger of God.",
     ),
 )
 
@@ -159,7 +152,7 @@ fun KalmasScreen(
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                kalma.title,
+                                kalma.urduName,
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -189,6 +182,12 @@ fun KalmasScreen(
 @Composable
 fun KalmaDetailScreen(index: Int, onBack: () -> Unit) {
     val kalma = kalmas.getOrNull(index) ?: kalmas.first()
+
+    var arabicScale by remember { mutableFloatStateOf(1f) }
+    var urduScale by remember { mutableFloatStateOf(1f) }
+    var englishScale by remember { mutableFloatStateOf(1f) }
+    var showSettings by remember { mutableStateOf(false) }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -199,73 +198,81 @@ fun KalmaDetailScreen(index: Int, onBack: () -> Unit) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Emerald900)
                     }
                 },
+                actions = {
+                    IconButton(onClick = { showSettings = true }) {
+                        Icon(Icons.Filled.TextFields, contentDescription = "Font size", tint = Emerald900)
+                    }
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
         }
     ) { padding ->
+        val arabicStyle = MaterialTheme.typography.headlineSmall
+        val urduStyle = MaterialTheme.typography.bodyLarge
+        val englishStyle = MaterialTheme.typography.bodyLarge
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            // Hero image — per-kalma if assigned, otherwise the group banner.
-            Image(
-                painter = painterResource(kalma.image ?: R.drawable.six_kalmas),
-                contentDescription = kalma.name,
-                contentScale = ContentScale.Crop,
+            // --- Premium gradient hero header ---
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(20.dp)),
-            )
-
-            // Header
-            IslamicCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(NoorGradients.EmeraldDeep)
+                    .padding(20.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(60.dp)
+                            .size(72.dp)
                             .clip(CircleShape)
-                            .background(Gold500.copy(alpha = 0.18f)),
+                            .background(Gold500.copy(alpha = 0.20f)),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             kalma.number.toString(),
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.displaySmall,
                             color = Gold500,
                             fontWeight = FontWeight.Bold,
                         )
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        kalma.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Emerald900,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                    )
+                    Spacer(Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            kalma.urduName,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = Gold500,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            kalma.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
                 }
             }
 
-            // Arabic
-            IslamicCard(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    "Arabic",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(6.dp))
+            // --- Arabic card ---
+            SectionCard(label = "Arabic") {
                 Text(
                     kalma.arabic,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = arabicStyle.copy(
+                        fontSize = arabicStyle.fontSize * arabicScale,
+                        lineHeight = arabicStyle.lineHeight * arabicScale * 1.3f,
+                    ),
                     color = Emerald900,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.End,
@@ -273,53 +280,148 @@ fun KalmaDetailScreen(index: Int, onBack: () -> Unit) {
                 )
             }
 
-            // Transliteration
-            IslamicCard(modifier = Modifier.fillMaxWidth()) {
+            // --- Urdu translation card ---
+            SectionCard(label = "اردو ترجمہ") {
                 Text(
-                    "Transliteration",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    kalma.transliteration,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Gold500,
-                    fontWeight = FontWeight.Medium,
+                    kalma.urdu,
+                    style = urduStyle.copy(
+                        fontSize = urduStyle.fontSize * urduScale,
+                        lineHeight = urduStyle.lineHeight * urduScale * 1.4f,
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
-            // Translation
-            IslamicCard(modifier = Modifier.fillMaxWidth()) {
+            // --- English translation card ---
+            SectionCard(label = "English Translation") {
                 Text(
-                    "Translation",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    kalma.translation,
-                    style = MaterialTheme.typography.bodyLarge,
+                    kalma.english,
+                    style = englishStyle.copy(
+                        fontSize = englishStyle.fontSize * englishScale,
+                        lineHeight = englishStyle.lineHeight * englishScale * 1.35f,
+                    ),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
 
-            // Virtue / Note
-            IslamicCard(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    "About",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Emerald900,
-                    fontWeight = FontWeight.Bold,
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    kalma.virtue,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
             Spacer(Modifier.height(24.dp))
         }
     }
+
+    if (showSettings) {
+        FontSizeDialog(
+            arabicScale = arabicScale,
+            urduScale = urduScale,
+            englishScale = englishScale,
+            onArabicChange = { arabicScale = it },
+            onUrduChange = { urduScale = it },
+            onEnglishChange = { englishScale = it },
+            onReset = {
+                arabicScale = 1f; urduScale = 1f; englishScale = 1f
+            },
+            onDismiss = { showSettings = false },
+        )
+    }
 }
+
+@Composable
+private fun FontSizeDialog(
+    arabicScale: Float,
+    urduScale: Float,
+    englishScale: Float,
+    onArabicChange: (Float) -> Unit,
+    onUrduChange: (Float) -> Unit,
+    onEnglishChange: (Float) -> Unit,
+    onReset: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                "Text Size",
+                color = Emerald900,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                FontSlider("Arabic",  arabicScale,  onArabicChange)
+                FontSlider("Urdu",    urduScale,    onUrduChange)
+                FontSlider("English", englishScale, onEnglishChange)
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(contentColor = Emerald900),
+            ) { Text("Done", fontWeight = FontWeight.SemiBold) }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onReset,
+                colors = ButtonDefaults.textButtonColors(contentColor = Gold500),
+            ) { Text("Reset") }
+        },
+    )
+}
+
+@Composable
+private fun FontSlider(label: String, value: Float, onChange: (Float) -> Unit) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelLarge,
+                color = Emerald900,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                "${(value * 100).toInt()}%",
+                style = MaterialTheme.typography.labelMedium,
+                color = Gold500,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Slider(
+            value = value,
+            onValueChange = onChange,
+            valueRange = 0.8f..2.0f,
+            steps = 11,
+            colors = SliderDefaults.colors(
+                thumbColor = Emerald900,
+                activeTrackColor = Emerald900,
+            ),
+        )
+    }
+}
+
+@Composable
+private fun SectionCard(label: String, content: @Composable () -> Unit) {
+    IslamicCard(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .clip(CircleShape)
+                    .background(Gold500),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                label,
+                style = MaterialTheme.typography.labelLarge,
+                color = Emerald900,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        content()
+    }
+}
+

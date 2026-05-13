@@ -10,10 +10,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Brightness6
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.WbTwilight
+import androidx.compose.material.icons.outlined.AccessAlarm
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -99,7 +101,10 @@ fun PrayerTimesScreen(
                         fontSize = 16.sp,
                     )
                     Spacer(Modifier.height(8.dp))
-                    PrayerList(state)
+                    PrayerList(
+                        state = state,
+                        onSetCustom = { p, hhmm -> viewModel.setCustomTime(p.name, hhmm) },
+                    )
                     Spacer(Modifier.height(16.dp))
                     LocationFooter(state)
                 }
@@ -247,12 +252,16 @@ private fun NextPrayerHero(state: PrayerTimesUiState) {
 }
 
 @Composable
-private fun PrayerList(state: PrayerTimesUiState) {
+private fun PrayerList(
+    state: PrayerTimesUiState,
+    onSetCustom: (PrayerTimesCalculator.Prayer, String?) -> Unit,
+) {
     val times = state.times ?: return
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         PrayerTimesCalculator.Prayer.values().forEach { p ->
             val isCurrent = state.currentPrayer == p
             val isNext = state.nextPrayer == p
+            val isAlarmable = p != PrayerTimesCalculator.Prayer.SUNRISE
             PrayerRow(
                 name = p.displayName,
                 time = PrayerTimesCalculator.formatTime(times[p]),
@@ -263,11 +272,14 @@ private fun PrayerList(state: PrayerTimesUiState) {
                     isCurrent -> "Now"
                     else -> null
                 },
+                customTime = if (isAlarmable) state.customTimes[p.name] else null,
+                onSetCustom = if (isAlarmable) { hhmm -> onSetCustom(p, hhmm) } else null,
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PrayerRow(
     name: String,
@@ -275,7 +287,11 @@ private fun PrayerRow(
     icon: ImageVector,
     highlight: Boolean,
     tag: String? = null,
+    customTime: String? = null,
+    onSetCustom: ((String?) -> Unit)? = null,
 ) {
+    var showPicker by remember { mutableStateOf(false) }
+
     Surface(
         color = if (highlight) Emerald900.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp),
@@ -301,13 +317,22 @@ private fun PrayerRow(
                 )
             }
             Spacer(Modifier.width(12.dp))
-            Text(
-                name,
-                color = Emerald900,
-                fontWeight = if (highlight) FontWeight.Bold else FontWeight.Medium,
-                fontSize = 15.sp,
-                modifier = Modifier.weight(1f),
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    name,
+                    color = Emerald900,
+                    fontWeight = if (highlight) FontWeight.Bold else FontWeight.Medium,
+                    fontSize = 15.sp,
+                )
+                customTime?.let {
+                    Text(
+                        "Custom alarm: $it",
+                        color = Gold500,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
             tag?.let {
                 Surface(
                     color = Gold500.copy(alpha = 0.22f),
@@ -324,8 +349,83 @@ private fun PrayerRow(
                 Spacer(Modifier.width(8.dp))
             }
             Text(time, color = Emerald900, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            if (onSetCustom != null) {
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = { showPicker = true }, modifier = Modifier.size(34.dp)) {
+                    Icon(
+                        if (customTime != null) Icons.Filled.Edit else Icons.Outlined.AccessAlarm,
+                        contentDescription = "Set custom alarm",
+                        tint = if (customTime != null) Gold500 else Emerald900,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
         }
     }
+
+    if (showPicker && onSetCustom != null) {
+        // Pre-fill from existing custom time, else from computed time string ("hh:mm AM/PM").
+        val (initH, initM) = remember(customTime, time) {
+            customTime?.let {
+                val p = it.split(":")
+                (p.getOrNull(0)?.toIntOrNull() ?: 5) to (p.getOrNull(1)?.toIntOrNull() ?: 0)
+            } ?: parseHourMinFromDisplay(time)
+        }
+        val pickerState = rememberTimePickerState(initialHour = initH, initialMinute = initM, is24Hour = false)
+        AlertDialog(
+            onDismissRequest = { showPicker = false },
+            title = {
+                Text("Custom alarm — $name", color = Emerald900, fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Column {
+                    TimePicker(state = pickerState)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "This time replaces the calculated $name time for the alarm only.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 12.sp,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val hh = pickerState.hour.toString().padStart(2, '0')
+                        val mm = pickerState.minute.toString().padStart(2, '0')
+                        onSetCustom("$hh:$mm")
+                        showPicker = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Emerald900),
+                ) { Text("Save", fontWeight = FontWeight.SemiBold) }
+            },
+            dismissButton = {
+                Row {
+                    if (customTime != null) {
+                        TextButton(
+                            onClick = { onSetCustom(null); showPicker = false },
+                            colors = ButtonDefaults.textButtonColors(contentColor = Gold500),
+                        ) { Text("Clear") }
+                    }
+                    TextButton(onClick = { showPicker = false }) { Text("Cancel") }
+                }
+            },
+        )
+    }
+}
+
+/** Parses "hh:mm AM"/"hh:mm PM" into 24-h (hour, minute). */
+private fun parseHourMinFromDisplay(display: String): Pair<Int, Int> {
+    return runCatching {
+        val parts = display.trim().split(" ")
+        val hm = parts[0].split(":")
+        var h = hm[0].toInt()
+        val m = hm[1].toInt()
+        val ampm = parts.getOrNull(1)?.uppercase() ?: ""
+        if (ampm == "PM" && h < 12) h += 12
+        if (ampm == "AM" && h == 12) h = 0
+        h to m
+    }.getOrDefault(5 to 0)
 }
 
 @Composable

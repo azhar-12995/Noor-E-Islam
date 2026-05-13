@@ -16,6 +16,7 @@ import com.azhar.noor_e_islam.presentation.auth.register.RegisterScreen
 import com.azhar.noor_e_islam.presentation.bookmarks.BookmarksScreen
 import com.azhar.noor_e_islam.presentation.calendar.CalendarScreen
 import com.azhar.noor_e_islam.presentation.dua.DuaScreen
+import com.azhar.noor_e_islam.presentation.dua.DuaDetailScreen
 import com.azhar.noor_e_islam.presentation.feedback.FeedbackScreen
 import com.azhar.noor_e_islam.presentation.habits.HabitsScreen
 import com.azhar.noor_e_islam.presentation.hadith.HadithScreen
@@ -26,6 +27,8 @@ import com.azhar.noor_e_islam.presentation.learn.pillars.PillarsScreen
 import com.azhar.noor_e_islam.presentation.learn.pillars.PillarDetailScreen
 import com.azhar.noor_e_islam.presentation.learn.kalmas.KalmasScreen
 import com.azhar.noor_e_islam.presentation.learn.kalmas.KalmaDetailScreen
+import com.azhar.noor_e_islam.presentation.learn.namaz.NamazScreen
+import com.azhar.noor_e_islam.presentation.learn.wazu.WazuScreen
 import com.azhar.noor_e_islam.presentation.notes.NoteEditorScreen
 import com.azhar.noor_e_islam.presentation.notes.NotesScreen
 import com.azhar.noor_e_islam.presentation.notifications.NotificationsScreen
@@ -138,6 +141,8 @@ fun NoorNavGraph(
                 onBack = { navController.popBackStack() },
                 onOpenPillars = { navController.navigate(Route.Pillars.route) },
                 onOpenKalmas = { navController.navigate(Route.Kalmas.route) },
+                onOpenNamaz = { navController.navigate(Route.Namaz.route) },
+                onOpenWazu = { navController.navigate(Route.Wazu.route) },
             )
         }
         composable(Route.Calendar.route) { CalendarScreen(onBack = { navController.popBackStack() }) }
@@ -193,7 +198,21 @@ fun NoorNavGraph(
         // Other features
         composable(Route.Hadith.route)     { HadithScreen(onBack = { navController.popBackStack() }) }
         composable(Route.Incidents.route)  { IncidentsScreen(onBack = { navController.popBackStack() }) }
-        composable(Route.Dua.route)        { DuaScreen(onBack = { navController.popBackStack() }) }
+        composable(Route.Dua.route)        {
+            DuaScreen(
+                onBack = { navController.popBackStack() },
+                onOpenDua = { id -> navController.navigate(Route.DuaDetail.create(id)) },
+            )
+        }
+        composable(
+            route = Route.DuaDetail.route,
+            arguments = listOf(navArgument("id") { type = NavType.StringType }),
+        ) { entry ->
+            DuaDetailScreen(
+                duaId = entry.arguments?.getString("id").orEmpty(),
+                onBack = { navController.popBackStack() },
+            )
+        }
         composable(Route.Stories.route)    { StoriesScreen(onBack = { navController.popBackStack() }) }
         composable(Route.Habits.route)     { HabitsScreen(onMenu = onOpenMenu) }
         composable(Route.Bookmarks.route)  {
@@ -255,6 +274,12 @@ fun NoorNavGraph(
                 index = entry.arguments?.getInt("index") ?: 0,
                 onBack = { navController.popBackStack() },
             )
+        }
+        composable(Route.Namaz.route) {
+            NamazScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Route.Wazu.route) {
+            WazuScreen(onBack = { navController.popBackStack() })
         }
 
         // User-area: Notifications, Edit Profile, Feedback

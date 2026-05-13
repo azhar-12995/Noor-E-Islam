@@ -61,6 +61,8 @@ sealed class Route(val route: String) {
     data object KalmaDetail   : Route("learn/kalmas/{index}") {
         fun create(index: Int) = "learn/kalmas/$index"
     }
+    data object Namaz         : Route("learn/namaz")
+    data object Wazu          : Route("learn/wazu")
 
     // User-area additions
     data object Notifications : Route("notifications")

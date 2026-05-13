@@ -1,15 +1,21 @@
 package com.azhar.noor_e_islam.presentation.prayertimes
 
+import android.content.Context
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.azhar.noor_e_islam.core.datastore.UserPreferences
+import com.azhar.noor_e_islam.core.notifications.PrayerAlarmScheduler
 import com.azhar.noor_e_islam.presentation.qibla.LocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
@@ -25,12 +31,16 @@ data class PrayerTimesUiState(
     val nextPrayer: PrayerTimesCalculator.Prayer? = null,
     val currentPrayer: PrayerTimesCalculator.Prayer? = null,
     val nowHours: Double = 0.0,
+    /** prayerName ("FAJR".."ISHA") -> "HH:mm" override, empty if none. */
+    val customTimes: Map<String, String> = emptyMap(),
     val error: String? = null,
 )
 
 @HiltViewModel
 class PrayerTimesViewModel @Inject constructor(
     private val locationService: LocationService,
+    private val prefs: UserPreferences,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
@@ -39,6 +49,22 @@ class PrayerTimesViewModel @Inject constructor(
     val state: StateFlow<PrayerTimesUiState> = _state.asStateFlow()
 
     private var tickerJob: Job? = null
+
+    init {
+        // Reactive: every change to custom-time overrides updates UI.
+        prefs.customPrayerTimes
+            .onEach { map -> _state.value = _state.value.copy(customTimes = map) }
+            .launchIn(viewModelScope)
+    }
+
+    /** Save / clear a custom HH:mm alarm time for [prayer] (e.g. "FAJR"), then
+     *  re-arm the prayer alarm chain so the change takes effect immediately. */
+    fun setCustomTime(prayer: String, hhmm: String?) {
+        viewModelScope.launch {
+            prefs.setCustomPrayerTime(prayer, hhmm)
+            runCatching { PrayerAlarmScheduler.schedule(appContext) }
+        }
+    }
 
     fun onPermissionResult(granted: Boolean) {
         _state.value = _state.value.copy(hasPermission = granted)

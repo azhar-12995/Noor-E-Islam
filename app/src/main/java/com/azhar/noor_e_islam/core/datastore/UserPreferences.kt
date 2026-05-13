@@ -49,6 +49,13 @@ class UserPreferences @Inject constructor(
         val PRAYER_LAT      = stringPreferencesKey("prayer_lat")  // stored as String for DataStore (no Double key)
         val PRAYER_LNG      = stringPreferencesKey("prayer_lng")
         val HADITH_NOTIF_DATE = stringPreferencesKey("hadith_notif_last_date")
+
+        // Custom alarm time overrides per prayer (HH:mm), empty = no override.
+        val PRAYER_CUSTOM_FAJR    = stringPreferencesKey("prayer_custom_fajr")
+        val PRAYER_CUSTOM_DHUHR   = stringPreferencesKey("prayer_custom_dhuhr")
+        val PRAYER_CUSTOM_ASR     = stringPreferencesKey("prayer_custom_asr")
+        val PRAYER_CUSTOM_MAGHRIB = stringPreferencesKey("prayer_custom_maghrib")
+        val PRAYER_CUSTOM_ISHA    = stringPreferencesKey("prayer_custom_isha")
     }
 
     val prefs: Flow<UserPrefs> = context.userDataStore.data.map { p ->
@@ -111,5 +118,33 @@ class UserPreferences @Inject constructor(
         context.userDataStore.data.map { it[Keys.HADITH_NOTIF_DATE].orEmpty() }
     suspend fun setHadithNotifDate(date: String) {
         context.userDataStore.edit { it[Keys.HADITH_NOTIF_DATE] = date }
+    }
+
+    /** Per-prayer custom alarm time overrides as Map<prayerName, "HH:mm">.
+     *  Prayer keys are the canonical PrayerTimesCalculator.Prayer.name strings
+     *  (e.g. "FAJR", "DHUHR"). Missing/blank entries mean "use computed time". */
+    val customPrayerTimes: Flow<Map<String, String>> =
+        context.userDataStore.data.map { p ->
+            buildMap {
+                p[Keys.PRAYER_CUSTOM_FAJR]?.takeIf { it.isNotBlank() }?.let    { put("FAJR", it) }
+                p[Keys.PRAYER_CUSTOM_DHUHR]?.takeIf { it.isNotBlank() }?.let   { put("DHUHR", it) }
+                p[Keys.PRAYER_CUSTOM_ASR]?.takeIf { it.isNotBlank() }?.let     { put("ASR", it) }
+                p[Keys.PRAYER_CUSTOM_MAGHRIB]?.takeIf { it.isNotBlank() }?.let { put("MAGHRIB", it) }
+                p[Keys.PRAYER_CUSTOM_ISHA]?.takeIf { it.isNotBlank() }?.let    { put("ISHA", it) }
+            }
+        }
+
+    suspend fun setCustomPrayerTime(prayer: String, hhmm: String?) {
+        val key = when (prayer) {
+            "FAJR"    -> Keys.PRAYER_CUSTOM_FAJR
+            "DHUHR"   -> Keys.PRAYER_CUSTOM_DHUHR
+            "ASR"     -> Keys.PRAYER_CUSTOM_ASR
+            "MAGHRIB" -> Keys.PRAYER_CUSTOM_MAGHRIB
+            "ISHA"    -> Keys.PRAYER_CUSTOM_ISHA
+            else      -> return
+        }
+        context.userDataStore.edit {
+            if (hhmm.isNullOrBlank()) it.remove(key) else it[key] = hhmm
+        }
     }
 }

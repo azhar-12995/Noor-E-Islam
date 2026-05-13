@@ -45,6 +45,7 @@ object PrayerAlarmScheduler {
         val prefs = UserPreferences(context)
         val loc = runCatching { prefs.cachedLocation.first() }.getOrNull() ?: return
         val (lat, lng) = loc
+        val overrides = runCatching { prefs.customPrayerTimes.first() }.getOrNull().orEmpty()
 
         val tz = TimeZone.getDefault()
         val now = Calendar.getInstance().apply { timeInMillis = from }
@@ -65,9 +66,19 @@ object PrayerAlarmScheduler {
             )
             PrayerTimesCalculator.Prayer.entries.forEach { p ->
                 if (p == PrayerTimesCalculator.Prayer.SUNRISE) return@forEach
-                val h = times[p]
-                val hh = h.toInt()
-                val mm = ((h - hh) * 60).toInt()
+                // Apply user override (HH:mm) if present, otherwise use computed time.
+                val override = overrides[p.name]
+                val (hh, mm) = if (override != null) {
+                    val parts = override.split(":")
+                    val h = parts.getOrNull(0)?.toIntOrNull()?.coerceIn(0, 23) ?: 0
+                    val m = parts.getOrNull(1)?.toIntOrNull()?.coerceIn(0, 59) ?: 0
+                    h to m
+                } else {
+                    val h = times[p]
+                    val hi = h.toInt()
+                    val mi = ((h - hi) * 60).toInt()
+                    hi to mi
+                }
                 val t = (day.clone() as Calendar).apply {
                     set(Calendar.HOUR_OF_DAY, hh)
                     set(Calendar.MINUTE, mm)
