@@ -1,11 +1,16 @@
 package com.azhar.noor_e_islam.core.notifications
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.azhar.noor_e_islam.MainActivity
 import com.azhar.noor_e_islam.R
 
@@ -18,6 +23,7 @@ import com.azhar.noor_e_islam.R
  */
 class PrayerAlarmReceiver : BroadcastReceiver() {
 
+    @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_PRAYER_ALARM) return
 
@@ -48,7 +54,13 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             .build()
 
         runCatching {
-            NotificationManagerCompat.from(context).notify(notifId, notification)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                NotificationManagerCompat.from(context).notify(notifId, notification)
+            }
         }
 
         // After the last prayer of the day fires, queue tomorrow's batch.
